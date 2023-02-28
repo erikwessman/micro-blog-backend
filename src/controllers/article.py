@@ -3,7 +3,6 @@ from db import DBManager
 from utils.json_encoder import JSONEncoder
 from flask import request, Blueprint
 from bson import ObjectId
-import bson
 
 article_bp = Blueprint('article_route', __name__, url_prefix='/api/article', template_folder='templates')
 article_db = DBManager.get_db()['articles']
