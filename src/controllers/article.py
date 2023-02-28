@@ -4,7 +4,8 @@ from utils.json_encoder import JSONEncoder
 from flask import request, Blueprint
 from bson import ObjectId
 
-article_bp = Blueprint('article_route', __name__, url_prefix='/api/article', template_folder='templates')
+article_bp = Blueprint('article_route', __name__,
+                       url_prefix='/api/article', template_folder='templates')
 article_db = DBManager.get_db()['articles']
 
 
@@ -26,9 +27,21 @@ def get_article():
 
 
 @article_bp.route("", methods=["POST"])
-def create_articles():
+def create_article():
     article_json = request.data
     article = json.loads(article_json)
+
+    article_insert = article_db.insert_one(article)
+    article_id = str(article_insert.inserted_id)
+
+    return article_id, 200
+
+
+@article_bp.route("/dummy", methods=["POST"])
+def create_article_dummy():
+    f = open("src/dummy_data/article.json")
+    article = json.load(f)
+    f.close()
 
     article_insert = article_db.insert_one(article)
     article_id = str(article_insert.inserted_id)
@@ -51,5 +64,12 @@ def patch_article():
 def delete_article():
     article_id = request.args['id']
     article_db.delete_one({"_id": ObjectId(article_id)})
+
+    return "OK", 200
+
+
+@article_bp.route("/all", methods=["DELETE"])
+def delete_articles():
+    article_db.delete_many({})
 
     return "OK", 200
