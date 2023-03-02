@@ -9,20 +9,17 @@ article_bp = Blueprint('article_route', __name__,
 article_db = DBManager.get_db()['articles']
 
 
-@article_bp.route("/all", methods=["GET"])
-def get_articles():
-    articles = list(article_db.find())
-    articles_json = JSONEncoder().encode(articles)
-
-    return articles_json, 200
-
-
 @article_bp.route("", methods=["GET"])
 def get_article():
-    article_id = request.args['id']
-    article = article_db.find_one({"_id": ObjectId(article_id)})
-    article_json = JSONEncoder().encode(article)
+    article = None
 
+    if request.args:
+        article_id = request.args['id']
+        article = article_db.find_one({"_id": ObjectId(article_id)})
+    else:
+        article = list(article_db.find())
+
+    article_json = JSONEncoder().encode(article)
     return article_json, 200
 
 
@@ -62,14 +59,10 @@ def patch_article():
 
 @article_bp.route("", methods=["DELETE"])
 def delete_article():
-    article_id = request.args['id']
-    article_db.delete_one({"_id": ObjectId(article_id)})
-
-    return "OK", 200
-
-
-@article_bp.route("/all", methods=["DELETE"])
-def delete_articles():
-    article_db.delete_many({})
+    if request.args:
+        article_id = request.args['id']
+        article_db.delete_one({"_id": ObjectId(article_id)})
+    else:
+        article_db.delete_many({})
 
     return "OK", 200
