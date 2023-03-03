@@ -13,11 +13,11 @@ article_db = DBManager.get_db()['articles']
 def get_article():
     article = None
 
-    if request.args:
+    if request.args.getlist('id'):
         article_id = request.args['id']
         article = article_db.find_one({"_id": ObjectId(article_id)})
     else:
-        article = list(article_db.find())
+        article = list(article_db.find(request.args))
 
     article_json = JSONEncoder().encode(article)
     return article_json, 200
