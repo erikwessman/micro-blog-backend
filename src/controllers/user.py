@@ -9,15 +9,23 @@ user_bp = Blueprint('user_route', __name__,
 user_db = DBManager.get_db()['users']
 
 
-@user_bp.route("", methods=["GET"])
+@user_bp.route("/login", methods=["GET"])
 def login():
-    args = request.args
+    if 'username' in request.args and 'password' in request.args:
+        username = request.args['username']
+        password = request.args['password']
 
-    if 'username' in args and 'password' in args:
-        return "OK", 200
+        user = user_db.find_one({"username": username})
 
-    return "OK", 200
-
+        if user:
+            if user['password'] == password:
+                return "OK", 200
+            else:
+                return "Password does not match", 400
+        else:
+            return "User does not exist", 400
+    else:
+        return "Username or password not specified in request", 400
 
 @user_bp.route("", methods=["GET"])
 def get_user():
@@ -67,7 +75,7 @@ def patch_user():
                            {"$set": user})
         return "OK", 200
     else:
-        return "ID not specified", 400
+        return "ID not specified in request", 400
 
 
 @user_bp.route("", methods=["DELETE"])
