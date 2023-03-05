@@ -5,12 +5,17 @@ from flask import request, Blueprint
 from bson import ObjectId
 
 user_bp = Blueprint('user_route', __name__,
-                    url_prefix='api/user', template_folder='templates')
+                    url_prefix='/api/user', template_folder='templates')
 user_db = DBManager.get_db()['users']
 
 
 @user_bp.route("", methods=["GET"])
 def login():
+    args = request.args
+
+    if 'username' in args and 'password' in args:
+        return "OK", 200
+
     return "OK", 200
 
 
@@ -18,7 +23,7 @@ def login():
 def get_user():
     user = None
 
-    if request.args.getlist('id'):
+    if 'id' in request.args:
         user_id = request.args['id']
         user = user_db.find_one({"_id": ObjectId(user_id)})
     else:
@@ -55,16 +60,19 @@ def create_user_dummy():
 def patch_user():
     user_json = request.data
     user = json.loads(user_json)
-    user_id = request.args['id']
 
-    user_db.update_one({"_id": ObjectId(user_id)},
-                       {"$set": user})
-    return "OK", 200
+    if 'id' in request.args:
+        user_id = request.args['id']
+        user_db.update_one({"_id": ObjectId(user_id)},
+                           {"$set": user})
+        return "OK", 200
+    else:
+        return "ID not specified", 400
 
 
 @user_bp.route("", methods=["DELETE"])
 def delete_user():
-    if request.args:
+    if 'id' in request.args:
         user_id = request.args['id']
         user_db.delete_one({"_id": ObjectId(user_id)})
     else:

@@ -1,11 +1,13 @@
 from flask import Flask
 from flask_cors import CORS
 from controllers.article import article_bp
+from controllers.user import user_bp
 
 # Create Flask app and connect routes/Blueprints
 app = Flask(__name__)
-CORS(app)
 app.register_blueprint(article_bp)
+app.register_blueprint(user_bp)
+CORS(app)
 
 
 @app.route("/")

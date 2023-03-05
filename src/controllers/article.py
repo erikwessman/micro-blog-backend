@@ -13,7 +13,7 @@ article_db = DBManager.get_db()['articles']
 def get_article():
     article = None
 
-    if request.args.getlist('id'):
+    if 'id' in request.args:
         article_id = request.args['id']
         article = article_db.find_one({"_id": ObjectId(article_id)})
     else:
@@ -50,16 +50,19 @@ def create_article_dummy():
 def patch_article():
     article_json = request.data
     article = json.loads(article_json)
-    article_id = request.args['id']
 
-    article_db.update_one({"_id": ObjectId(article_id)},
-                          {"$set": article})
-    return "OK", 200
+    if 'id' in request.args:
+        article_id = request.args['id']
+        article_db.update_one({"_id": ObjectId(article_id)},
+                              {"$set": article})
+        return "OK", 200
+    else:
+        return "ID not specified in request", 400
 
 
 @article_bp.route("", methods=["DELETE"])
 def delete_article():
-    if request.args:
+    if 'id' in request.args:
         article_id = request.args['id']
         article_db.delete_one({"_id": ObjectId(article_id)})
     else:
