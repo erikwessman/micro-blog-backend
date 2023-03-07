@@ -27,6 +27,7 @@ def login():
     else:
         return "Username or password not specified in request", 400
 
+
 @user_bp.route("", methods=["GET"])
 def get_user():
     user = None
