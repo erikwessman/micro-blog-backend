@@ -1,8 +1,10 @@
 import json
 from db import DBManager
 from utils.json_encoder import JSONEncoder
-from flask import request, Blueprint
+from flask import request, Blueprint, jsonify, current_app
 from bson import ObjectId
+import jwt
+import datetime
 
 user_bp = Blueprint('user_route', __name__,
                     url_prefix='/api/user', template_folder='templates')
@@ -19,7 +21,8 @@ def login():
 
         if user:
             if user['password'] == password:
-                return "OK", 200
+                token = generate_jwt(username)
+                return jsonify({'token': token}), 200
             else:
                 return "Password does not match", 400
         else:
@@ -46,7 +49,7 @@ def get_user():
 def create_user():
     user_json = request.data
     user = json.loads(user_json)
-    
+
     if 'username' in user and 'email' in user:
         username = user['username']
         email = user['email']
@@ -57,10 +60,10 @@ def create_user():
         if user_db.count_documents({'email': email}, limit=1) != 0:
             return "Email already in use", 400
 
-        user_insert = user_db.insert_one(user)
-        user_id = str(user_insert.inserted_id)
+        user_db.insert_one(user)
 
-        return user_id, 200
+        token = generate_jwt(username)
+        return jsonify({'token': token}), 200
     else:
         return "Username or email not specified in request", 400
 
@@ -100,3 +103,10 @@ def delete_user():
         user_db.delete_many({})
 
     return "OK", 200
+
+
+def generate_jwt(username):
+    return jwt.encode({
+        'username': username,
+        'exp': datetime.datetime.utcnow() + datetime.timedelta(minutes=30)},
+        current_app.config['SECRET_KEY'])

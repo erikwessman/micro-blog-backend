@@ -7,7 +7,12 @@ from controllers.user import user_bp
 app = Flask(__name__)
 app.register_blueprint(article_bp)
 app.register_blueprint(user_bp)
+
+# Enable CORS
 CORS(app)
+
+# Set config for JWT
+app.config['SECRET_KEY'] = 'eriks_key'
 
 
 @app.route("/")
