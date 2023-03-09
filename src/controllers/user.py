@@ -46,11 +46,23 @@ def get_user():
 def create_user():
     user_json = request.data
     user = json.loads(user_json)
+    
+    if 'username' in user and 'email' in user:
+        username = user['username']
+        email = user['email']
 
-    user_insert = user_db.insert_one(user)
-    user_id = str(user_insert.inserted_id)
+        if user_db.count_documents({'username': username}, limit=1) != 0:
+            return "Username already in use", 400
 
-    return user_id, 200
+        if user_db.count_documents({'email': email}, limit=1) != 0:
+            return "Email already in use", 400
+
+        user_insert = user_db.insert_one(user)
+        user_id = str(user_insert.inserted_id)
+
+        return user_id, 200
+    else:
+        return "Username or email not specified in request", 400
 
 
 @user_bp.route("/dummy", methods=["POST"])
