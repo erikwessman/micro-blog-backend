@@ -1,0 +1,37 @@
+{
+    "title": {
+        "type": "string",
+        "minlength": 1,
+        "required": "true"
+    },
+    "author": {
+        "type": "string",
+        "minlength": 1,
+        "required": "true"
+    },
+    "description": {
+        "type": "string",
+        "minlength": 1,
+        "required": "false"
+    },
+    "date": {
+        "type": "string",
+        "minlength": 1,
+        "required": "true"
+    },
+    "categories": {
+        "type": ["string"],
+        "minlength": 1,
+        "required": "true"
+    },
+    "image": {
+        "type": "string",
+        "minlength": 1,
+        "required": "false"
+    },
+    "content": {
+        "type": "string",
+        "minlength": 1,
+        "required": "false"
+    }
+}
