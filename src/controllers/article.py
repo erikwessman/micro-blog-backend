@@ -1,5 +1,5 @@
 import json
-import datetime
+from datetime import datetime
 from db import DBManager
 from utils.json_encoder import JSONEncoder
 from flask import request, Blueprint
@@ -19,7 +19,7 @@ def get_article():
         article = article_db.find_one({"_id": ObjectId(article_id)})
     else:
         article = list(article_db.find(request.args))
-        article.sort(key=lambda x: datetime.datetime.strptime(x['date'], '%d-%m-%Y'), reverse=True)
+        article.sort(key=lambda x: datetime.strptime(x['date'], '%d-%m-%Y'), reverse=True)
 
     article_json = JSONEncoder().encode(article)
     return article_json, 200
@@ -41,6 +41,8 @@ def create_article_dummy():
     f = open("src/dummy_data/article.json")
     article = json.load(f)
     f.close()
+
+    article['date'] = datetime.today().strftime('%d-%m-%Y')
 
     article_insert = article_db.insert_one(article)
     article_id = str(article_insert.inserted_id)
