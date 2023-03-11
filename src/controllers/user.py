@@ -1,34 +1,12 @@
 import json
 from db import DBManager
 from utils.json_encoder import JSONEncoder
-from flask import request, Blueprint, jsonify, current_app
+from flask import request, Blueprint
 from bson import ObjectId
-import jwt
-import datetime
 
 user_bp = Blueprint('user_route', __name__,
                     url_prefix='/api/user', template_folder='templates')
 user_db = DBManager.get_db()['users']
-
-
-@user_bp.route("/login", methods=["GET"])
-def login():
-    if 'username' in request.args and 'password' in request.args:
-        username = request.args['username']
-        password = request.args['password']
-
-        user = user_db.find_one({"username": username})
-
-        if user:
-            if user['password'] == password:
-                token = generate_jwt(username)
-                return jsonify({'token': token}), 200
-            else:
-                return "Password does not match", 400
-        else:
-            return "User does not exist", 400
-    else:
-        return "Username or password not specified in request", 400
 
 
 @user_bp.route("", methods=["GET"])
@@ -50,22 +28,10 @@ def create_user():
     user_json = request.data
     user = json.loads(user_json)
 
-    if 'username' in user and 'email' in user:
-        username = user['username']
-        email = user['email']
+    user_insert = user_db.insert_one(user)
+    user_id = str(user_insert.inserted_id)
 
-        if user_db.count_documents({'username': username}, limit=1) != 0:
-            return "Username already in use", 400
-
-        if user_db.count_documents({'email': email}, limit=1) != 0:
-            return "Email already in use", 400
-
-        user_db.insert_one(user)
-
-        token = generate_jwt(username)
-        return jsonify({'token': token}), 200
-    else:
-        return "Username or email not specified in request", 400
+    return user_id, 200
 
 
 @user_bp.route("/dummy", methods=["POST"])
@@ -103,10 +69,3 @@ def delete_user():
         user_db.delete_many({})
 
     return "OK", 200
-
-
-def generate_jwt(username):
-    return jwt.encode({
-        'username': username,
-        'exp': datetime.datetime.utcnow() + datetime.timedelta(minutes=30)},
-        current_app.config['SECRET_KEY'])

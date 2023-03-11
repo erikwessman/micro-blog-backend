@@ -2,11 +2,13 @@ from flask import Flask
 from flask_cors import CORS
 from controllers.article import article_bp
 from controllers.user import user_bp
+from controllers.authorization import authorization_bp
 
 # Create Flask app and connect routes/Blueprints
 app = Flask(__name__)
 app.register_blueprint(article_bp)
 app.register_blueprint(user_bp)
+app.register_blueprint(authorization_bp)
 
 # Enable CORS
 CORS(app)
