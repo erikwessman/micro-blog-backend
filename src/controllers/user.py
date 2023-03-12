@@ -1,6 +1,6 @@
 import json
 from db import DBManager
-from utils import JSONEncoder
+from utils import JSONEncoder, admin_required
 from flask import request, Blueprint
 from bson import ObjectId
 
@@ -10,6 +10,7 @@ user_db = DBManager.get_db()['users']
 
 
 @user_bp.route("", methods=["GET"])
+@admin_required
 def get_user():
     user = None
 
@@ -24,6 +25,7 @@ def get_user():
 
 
 @user_bp.route("", methods=["POST"])
+@admin_required
 def create_user():
     user_json = request.data
     user = json.loads(user_json)
@@ -35,6 +37,7 @@ def create_user():
 
 
 @user_bp.route("/dummy", methods=["POST"])
+@admin_required
 def create_user_dummy():
     f = open("src/dummy_data/user.json")
     user = json.load(f)
@@ -47,6 +50,7 @@ def create_user_dummy():
 
 
 @user_bp.route("", methods=["PATCH"])
+@admin_required
 def patch_user():
     user_json = request.data
     user = json.loads(user_json)
@@ -61,6 +65,7 @@ def patch_user():
 
 
 @user_bp.route("", methods=["DELETE"])
+@admin_required
 def delete_user():
     if 'id' in request.args:
         user_id = request.args['id']

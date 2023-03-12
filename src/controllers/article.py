@@ -1,5 +1,5 @@
 from flask import request, Blueprint
-from utils import JSONEncoder, decode_jwt
+from utils import JSONEncoder, decode_jwt, token_required, admin_required
 from db import DBManager
 from bson import ObjectId
 import json
@@ -27,6 +27,7 @@ def get_article():
 
 
 @article_bp.route("", methods=["POST"])
+@admin_required
 def create_article():
     article_json = request.data
     article = json.loads(article_json)
@@ -38,6 +39,7 @@ def create_article():
 
 
 @article_bp.route("/user", methods=["POST"])
+@token_required
 def create_article_user():
     article_json = request.data
     article = json.loads(article_json)
@@ -56,6 +58,7 @@ def create_article_user():
 
 
 @article_bp.route("/dummy", methods=["POST"])
+@admin_required
 def create_article_dummy():
     f = open("src/dummy_data/article.json")
     article = json.load(f)
@@ -70,6 +73,7 @@ def create_article_dummy():
 
 
 @article_bp.route("", methods=["PATCH"])
+@admin_required
 def patch_article():
     article_json = request.data
     article = json.loads(article_json)
@@ -84,6 +88,7 @@ def patch_article():
 
 
 @article_bp.route("", methods=["DELETE"])
+@admin_required
 def delete_article():
     if 'id' in request.args:
         article_id = request.args['id']
