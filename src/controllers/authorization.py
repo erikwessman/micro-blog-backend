@@ -1,8 +1,7 @@
-import json
+from flask import request, Blueprint, jsonify
+from utils import generate_jwt
 from db import DBManager
-from flask import request, Blueprint, jsonify, current_app
-import jwt
-import datetime
+import json
 
 authorization_bp = Blueprint('authorization_route', __name__,
                              url_prefix='/api/authorization', template_folder='templates')
@@ -19,7 +18,7 @@ def login():
 
         if user:
             if user['password'] == password:
-                token = generate_jwt(username)
+                token = generate_jwt({'username': username})
                 return jsonify({'token': token}), 200
             else:
                 return "Password does not match", 400
@@ -46,14 +45,7 @@ def register():
 
         user_db.insert_one(user)
 
-        token = generate_jwt(username)
+        token = generate_jwt({'username': username})
         return jsonify({'token': token}), 200
     else:
         return "Username or email not specified in request", 400
-
-
-def generate_jwt(username):
-    return jwt.encode({
-        'username': username,
-        'exp': datetime.datetime.utcnow() + datetime.timedelta(minutes=30)},
-        current_app.config['SECRET_KEY'])

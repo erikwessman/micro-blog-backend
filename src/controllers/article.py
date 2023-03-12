@@ -1,9 +1,8 @@
-import json
+from flask import request, Blueprint
+from utils import JSONEncoder, decode_jwt
 from db import DBManager
-from utils.json_encoder import JSONEncoder
-from flask import request, Blueprint, current_app
 from bson import ObjectId
-import jwt
+import json
 import datetime
 
 article_bp = Blueprint('article_route', __name__,
@@ -20,7 +19,8 @@ def get_article():
         article = article_db.find_one({"_id": ObjectId(article_id)})
     else:
         article = list(article_db.find(request.args))
-        article.sort(key=lambda x: datetime.datetime.strptime(x['date'], '%d-%m-%Y'), reverse=True)
+        article.sort(key=lambda x: datetime.datetime.strptime(
+            x['date'], '%d-%m-%Y'), reverse=True)
 
     article_json = JSONEncoder().encode(article)
     return article_json, 200
@@ -41,9 +41,9 @@ def create_article():
 def create_article_user():
     article_json = request.data
     article = json.loads(article_json)
-    
+
     token = request.headers.get('Authorization')
-    data = jwt.decode(token, current_app.config['SECRET_KEY'], algorithms=["HS256"])
+    data = decode_jwt(token)
     username = data['username']
 
     article['author'] = username

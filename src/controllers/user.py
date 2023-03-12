@@ -1,6 +1,6 @@
 import json
 from db import DBManager
-from utils.json_encoder import JSONEncoder
+from utils import JSONEncoder
 from flask import request, Blueprint
 from bson import ObjectId
 
