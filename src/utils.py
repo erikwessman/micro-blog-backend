@@ -1,6 +1,7 @@
-from flask import request, current_app
+from flask import request
 from functools import wraps
 from bson import ObjectId
+from os import getenv
 import datetime
 import jwt
 import json
@@ -16,11 +17,11 @@ class JSONEncoder(json.JSONEncoder):
 def generate_jwt(payload, duration=60):
     payload['exp'] = datetime.datetime.utcnow(
     ) + datetime.timedelta(minutes=duration)
-    return jwt.encode(payload, current_app.config['SECRET_KEY'])
+    return jwt.encode(payload, getenv("JWT_KEY"))
 
 
 def decode_jwt(token):
-    return jwt.decode(token, current_app.config['SECRET_KEY'], algorithms=["HS256"])
+    return jwt.decode(token, getenv("JWT_KEY"), algorithms=["HS256"])
 
 
 def token_required(f):
@@ -49,7 +50,7 @@ def admin_required(f):
         if not admin_key:
             return "Admin key is missing", 403
 
-        if admin_key != '123':
+        if admin_key != getenv("ADMIN_KEY"):
             return "Admin key is incorrect", 403
 
         return f(*args, **kwargs)
