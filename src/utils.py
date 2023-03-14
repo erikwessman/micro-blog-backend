@@ -2,6 +2,7 @@ from flask import request
 from functools import wraps
 from bson import ObjectId
 from os import getenv
+from datetime import timezone
 import datetime
 import jwt
 import json
@@ -15,8 +16,7 @@ class JSONEncoder(json.JSONEncoder):
 
 
 def generate_jwt(payload, duration=60):
-    payload['exp'] = datetime.datetime.utcnow(
-    ) + datetime.timedelta(minutes=duration)
+    payload['exp'] = datetime.datetime.utcnow() + datetime.timedelta(minutes=duration)
     return jwt.encode(payload, getenv("JWT_KEY"))
 
 
@@ -56,3 +56,9 @@ def admin_required(f):
         return f(*args, **kwargs)
 
     return decorated
+
+
+def get_utc_timestamp():
+    dt = datetime.datetime.now(timezone.utc)
+    utc_time = dt.replace(tzinfo=timezone.utc)
+    return utc_time.timestamp()

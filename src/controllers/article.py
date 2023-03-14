@@ -1,9 +1,8 @@
 from flask import request, Blueprint
-from utils import JSONEncoder, decode_jwt, token_required, admin_required
+from utils import JSONEncoder, decode_jwt, token_required, admin_required, get_utc_timestamp
 from db import DBManager
 from bson import ObjectId
 import json
-import datetime
 
 article_bp = Blueprint('article_route', __name__,
                        url_prefix='/api/article', template_folder='templates')
@@ -19,8 +18,7 @@ def get_article():
         article = article_db.find_one({"_id": ObjectId(article_id)})
     else:
         article = list(article_db.find(request.args))
-        article.sort(key=lambda x: datetime.datetime.strptime(
-            x['date'], '%d-%m-%Y'), reverse=True)
+        article.sort(key=lambda x: x['date'], reverse=True)
 
     article_json = JSONEncoder().encode(article)
     return article_json, 200
@@ -49,7 +47,7 @@ def create_article_user():
     username = data['username']
 
     article['author'] = username
-    article['date'] = datetime.datetime.today().strftime('%d-%m-%Y')
+    article['date'] = get_utc_timestamp()
 
     article_insert = article_db.insert_one(article)
     article_id = str(article_insert.inserted_id)
@@ -64,7 +62,7 @@ def create_article_dummy():
     article = json.load(f)
     f.close()
 
-    article['date'] = datetime.datetime.today().strftime('%d-%m-%Y')
+    article['date'] = get_utc_timestamp()
 
     article_insert = article_db.insert_one(article)
     article_id = str(article_insert.inserted_id)
