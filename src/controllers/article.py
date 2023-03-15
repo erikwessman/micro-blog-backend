@@ -18,8 +18,7 @@ def get_article():
         article = article_db.find_one({"_id": ObjectId(article_id)})
     else:
         article_filter = build_article_filter(request.args.to_dict())
-        article = list(article_db.find(article_filter))
-        article.sort(key=lambda x: x['date'], reverse=True)
+        article = list(article_db.find(article_filter).sort('date', -1))
 
     article_json = JSONEncoder().encode(article)
     return article_json, 200
