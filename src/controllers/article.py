@@ -1,5 +1,5 @@
 from flask import request, Blueprint
-from utils import JSONEncoder, decode_jwt, token_required, admin_required, get_utc_timestamp_now, build_article_filter
+from utils import JSONEncoder, decode_jwt, token_required, admin_required, get_utc_timestamp_now, build_article_filter, build_article_pagination
 from db import DBManager
 from bson import ObjectId
 import json
@@ -18,7 +18,12 @@ def get_article():
         article = article_db.find_one({"_id": ObjectId(article_id)})
     else:
         article_filter = build_article_filter(request.args.to_dict())
-        article = list(article_db.find(article_filter).sort('date', -1))
+        article_pagination = build_article_pagination(request.args.to_dict())
+
+        article = list(article_db.find(article_filter)
+                        .sort('date', -1)
+                        .skip(article_pagination['skip'])
+                        .limit(article_pagination['limit']))
 
     article_json = JSONEncoder().encode(article)
     return article_json, 200
