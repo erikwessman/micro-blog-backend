@@ -1,5 +1,5 @@
 from flask import request, Blueprint
-from utils import JSONEncoder, decode_jwt, token_required, admin_required, get_utc_timestamp
+from utils import JSONEncoder, decode_jwt, token_required, admin_required, get_utc_timestamp_now, build_article_filter
 from db import DBManager
 from bson import ObjectId
 import json
@@ -17,7 +17,8 @@ def get_article():
         article_id = request.args['id']
         article = article_db.find_one({"_id": ObjectId(article_id)})
     else:
-        article = list(article_db.find(request.args))
+        article_filter = build_article_filter(request.args.to_dict())
+        article = list(article_db.find(article_filter))
         article.sort(key=lambda x: x['date'], reverse=True)
 
     article_json = JSONEncoder().encode(article)
@@ -45,7 +46,7 @@ def create_article_user():
     username = data['username']
 
     article['author'] = username
-    article['date'] = get_utc_timestamp()
+    article['date'] = get_utc_timestamp_now()
 
     article_insert = article_db.insert_one(article)
     article_id = str(article_insert.inserted_id)
@@ -60,7 +61,7 @@ def create_article_dummy():
     article = json.load(f)
     f.close()
 
-    article['date'] = get_utc_timestamp()
+    article['date'] = get_utc_timestamp_now()
 
     article_insert = article_db.insert_one(article)
     article_id = str(article_insert.inserted_id)

@@ -58,7 +58,35 @@ def admin_required(f):
     return decorated
 
 
-def get_utc_timestamp():
+def get_utc_timestamp_now():
     dt = datetime.datetime.now(timezone.utc)
     utc_time = dt.replace(tzinfo=timezone.utc)
     return utc_time.timestamp()
+
+
+def get_date_range(date):
+    dt = datetime.datetime.strptime(date, '%d/%m/%Y')
+
+    from_date = dt.replace(tzinfo=timezone.utc).timestamp()
+    to_date = from_date + 60*60*24
+    
+    return from_date, to_date
+
+
+def build_article_filter(article_args):
+    article_filter = {}
+
+    if 'author' in article_args:
+        article_filter['author'] = article_args['author']
+
+    if 'categories' in article_args:
+        article_filter['categories'] = article_args['categories']
+
+    if 'date' in article_args:
+        from_date, to_date = get_date_range(article_args['date'])
+        article_filter['date'] = {
+            '$gte': from_date,
+            '$lt': to_date
+        }
+
+    return article_filter
