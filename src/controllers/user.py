@@ -27,8 +27,7 @@ def get_user():
 @user_bp.route("", methods=["POST"])
 @admin_required
 def create_user():
-    user_json = request.data
-    user = json.loads(user_json)
+    user = json.loads(request.data)
 
     user_insert = user_db.insert_one(user)
     user_id = str(user_insert.inserted_id)
@@ -52,8 +51,7 @@ def create_user_dummy():
 @user_bp.route("", methods=["PATCH"])
 @admin_required
 def patch_user():
-    user_json = request.data
-    user = json.loads(user_json)
+    user = json.loads(request.data)
 
     if 'id' in request.args:
         user_id = request.args['id']

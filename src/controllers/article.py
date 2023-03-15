@@ -27,8 +27,7 @@ def get_article():
 @article_bp.route("", methods=["POST"])
 @admin_required
 def create_article():
-    article_json = request.data
-    article = json.loads(article_json)
+    article = json.loads(request.data)
 
     article_insert = article_db.insert_one(article)
     article_id = str(article_insert.inserted_id)
@@ -39,8 +38,7 @@ def create_article():
 @article_bp.route("/user", methods=["POST"])
 @token_required
 def create_article_user():
-    article_json = request.data
-    article = json.loads(article_json)
+    article = json.loads(request.data)
 
     token = request.headers.get('Authorization')
     data = decode_jwt(token)
@@ -73,8 +71,7 @@ def create_article_dummy():
 @article_bp.route("", methods=["PATCH"])
 @admin_required
 def patch_article():
-    article_json = request.data
-    article = json.loads(article_json)
+    article = json.loads(request.data)
 
     if 'id' in request.args:
         article_id = request.args['id']

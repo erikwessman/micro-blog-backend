@@ -10,7 +10,7 @@ import json
 
 class JSONEncoder(json.JSONEncoder):
     def default(self, o):
-        if isinstance(o, ObjectId):
+        if isinstance(o, (ObjectId, bytes, bytearray)):
             return str(o)
         return json.JSONEncoder.default(self, o)
 
