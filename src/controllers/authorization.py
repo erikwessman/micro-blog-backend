@@ -47,7 +47,8 @@ def register():
             return "Email already in use", 400
 
         # Update the request with hashed password
-        register['password'] = hash_pw(password)
+        register['password'] = bcrypt.hashpw(
+            password.encode('utf-8'), bcrypt.gensalt())
 
         user_db.insert_one(register)
 
@@ -55,7 +56,3 @@ def register():
         return jsonify({'token': token}), 200
     else:
         return "Username or email not specified in request", 400
-
-
-def hash_pw(pw):
-    return bcrypt.hashpw(pw.encode('utf-8'), bcrypt.gensalt())
