@@ -1,5 +1,5 @@
 from flask import request, Blueprint, jsonify
-from utils import generate_jwt
+from utils import generate_jwt, token_required
 from db import DBManager
 import bcrypt
 import json
@@ -56,3 +56,8 @@ def register():
         return jsonify({'token': token}), 200
     else:
         return "Username or email not specified in request", 400
+
+@authorization_bp.route("/valid", methods=["GET"])
+@token_required
+def valid():
+    return "Token is valid", 200
