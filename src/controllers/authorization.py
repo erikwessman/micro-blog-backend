@@ -1,5 +1,5 @@
 from flask import request, Blueprint, jsonify
-from utils import generate_jwt, token_required
+from utils import generate_jwt, decode_jwt, token_required
 from db import DBManager
 import bcrypt
 import json
@@ -61,3 +61,10 @@ def register():
 @token_required
 def valid():
     return "Token is valid", 200
+
+@authorization_bp.route("/refresh", methods=["POST"])
+@token_required
+def refresh():
+    token = request.headers.get("Authorization")
+    payload = decode_jwt(token)
+    return generate_jwt(payload)
