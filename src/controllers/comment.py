@@ -18,7 +18,7 @@ def get_comment():
         comment = comment_db.find_one({"_id": ObjectId(comment_id)})
     elif 'article_id' in request.args:
         article_id = request.args['article_id']
-        comment = comment_db.find_one({"article_id": article_id})
+        comment = list(comment_db.find({"article_id": article_id}))
     else:
         comment = list(comment_db.find({}))
 
