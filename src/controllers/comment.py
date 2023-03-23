@@ -1,7 +1,7 @@
 from flask import request, Blueprint
 from db import DBManager
 from bson import ObjectId
-from utils import admin_required, token_required, get_utc_timestamp_now, decode_jwt
+from utils import admin_required, token_required, get_utc_timestamp_now, decode_jwt, JSONEncoder
 import json
 
 comment_bp = Blueprint('comment_route', __name__,
@@ -23,7 +23,8 @@ def get_comment():
         comment = list(comment_db.find({}))
 
     if comment:
-        return comment, 200
+        comment_json = JSONEncoder().encode(comment)
+        return comment_json, 200
     else:
         return "Not found", 404
 
