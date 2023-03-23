@@ -25,7 +25,7 @@ def get_article():
                         .skip(article_pagination['skip'])
                         .limit(article_pagination['limit']))
         
-    if article:
+    if article is not None:
         article_json = JSONEncoder().encode(article)
         return article_json, 200
     else:

@@ -23,7 +23,7 @@ def get_comment():
     else:
         comment = list(comment_db.find({}))
 
-    if comment:
+    if comment is not None:
         comment_json = JSONEncoder().encode(comment)
         return comment_json, 200
     else:

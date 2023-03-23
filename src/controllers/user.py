@@ -20,7 +20,7 @@ def get_user():
     else:
         user = list(user_db.find(request.args))
 
-    if user:
+    if user is not None:
         user_json = JSONEncoder().encode(user)
         return user_json, 200
     else:
