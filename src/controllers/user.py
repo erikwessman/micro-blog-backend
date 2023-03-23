@@ -20,8 +20,11 @@ def get_user():
     else:
         user = list(user_db.find(request.args))
 
-    user_json = JSONEncoder().encode(user)
-    return user_json, 200
+    if user:
+        user_json = JSONEncoder().encode(user)
+        return user_json, 200
+    else:
+        return "Not found", 404
 
 
 @user_bp.route("", methods=["POST"])

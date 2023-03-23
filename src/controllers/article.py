@@ -24,9 +24,12 @@ def get_article():
                         .sort('date', -1)
                         .skip(article_pagination['skip'])
                         .limit(article_pagination['limit']))
-
-    article_json = JSONEncoder().encode(article)
-    return article_json, 200
+        
+    if article:
+        article_json = JSONEncoder().encode(article)
+        return article_json, 200
+    else:
+        return "Not found", 404
 
 
 @article_bp.route("", methods=["POST"])

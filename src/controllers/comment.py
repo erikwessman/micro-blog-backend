@@ -22,7 +22,10 @@ def get_comment():
     else:
         comment = list(comment_db.find({}))
 
-    return comment, 200
+    if comment:
+        return comment, 200
+    else:
+        return "Not found", 404
 
 
 @comment_bp.route("", methods=["POST"])
