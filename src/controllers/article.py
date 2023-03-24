@@ -1,5 +1,5 @@
 from flask import request, Blueprint
-from utils import JSONEncoder, decode_jwt, token_required, admin_required, get_utc_timestamp_now, build_article_filter, build_article_pagination
+import utils
 from db import DBManager
 from bson import ObjectId
 import json
@@ -17,23 +17,24 @@ def get_article():
         article_id = request.args['id']
         article = article_db.find_one({"_id": ObjectId(article_id)})
     else:
-        article_filter = build_article_filter(request.args.to_dict())
-        article_pagination = build_article_pagination(request.args.to_dict())
+        article_filter = utils.build_article_filter(request.args.to_dict())
+        article_pagination = utils.build_article_pagination(
+            request.args.to_dict())
 
         article = list(article_db.find(article_filter)
-                        .sort('date', -1)
-                        .skip(article_pagination['skip'])
-                        .limit(article_pagination['limit']))
-        
+                       .sort('date', -1)
+                       .skip(article_pagination['skip'])
+                       .limit(article_pagination['limit']))
+
     if article is not None:
-        article_json = JSONEncoder().encode(article)
+        article_json = utils.JSONEncoder().encode(article)
         return article_json, 200
     else:
         return "Not found", 404
 
 
 @article_bp.route("", methods=["POST"])
-@admin_required
+@utils.admin_required
 def create_article():
     article = json.loads(request.data)
 
@@ -44,16 +45,16 @@ def create_article():
 
 
 @article_bp.route("/user", methods=["POST"])
-@token_required
+@utils.token_required
 def create_article_user():
     article = json.loads(request.data)
 
     token = request.headers.get('Authorization')
-    data = decode_jwt(token)
+    data = utils.decode_jwt(token)
     username = data['username']
 
     article['author'] = username
-    article['date'] = get_utc_timestamp_now()
+    article['date'] = utils.get_utc_timestamp_now()
 
     article_insert = article_db.insert_one(article)
     article_id = str(article_insert.inserted_id)
@@ -62,13 +63,13 @@ def create_article_user():
 
 
 @article_bp.route("/dummy", methods=["POST"])
-@admin_required
+@utils.admin_required
 def create_article_dummy():
     f = open("src/dummy_data/article.json")
     article = json.load(f)
     f.close()
 
-    article['date'] = get_utc_timestamp_now()
+    article['date'] = utils.get_utc_timestamp_now()
 
     article_insert = article_db.insert_one(article)
     article_id = str(article_insert.inserted_id)
@@ -77,7 +78,7 @@ def create_article_dummy():
 
 
 @article_bp.route("", methods=["PATCH"])
-@admin_required
+@utils.admin_required
 def patch_article():
     article = json.loads(request.data)
 
@@ -91,7 +92,7 @@ def patch_article():
 
 
 @article_bp.route("", methods=["DELETE"])
-@admin_required
+@utils.admin_required
 def delete_article():
     if 'id' in request.args:
         article_id = request.args['id']

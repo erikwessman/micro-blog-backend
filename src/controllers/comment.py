@@ -3,7 +3,7 @@ from db import DBManager
 from bson import ObjectId
 from validators.comment_validators import comment_schema, comment_user_schema
 from jsonschema import validate, ValidationError
-from utils import admin_required, token_required, get_utc_timestamp_now, decode_jwt, JSONEncoder
+import utils
 import json
 
 comment_bp = Blueprint('comment_route', __name__,
@@ -26,14 +26,14 @@ def get_comment():
         comment = list(comment_db.find({}))
 
     if comment is not None:
-        comment_json = JSONEncoder().encode(comment)
+        comment_json = utils.JSONEncoder().encode(comment)
         return comment_json, 200
     else:
         return "Not found", 404
 
 
 @comment_bp.route("", methods=["POST"])
-@admin_required
+@utils.admin_required
 def create_comment():
     comment = json.loads(request.data)
     
@@ -49,16 +49,16 @@ def create_comment():
 
 
 @comment_bp.route("/user", methods=["POST"])
-@token_required
+@utils.token_required
 def create_comment_user():
     comment = json.loads(request.data)
 
     token = request.headers.get('Authorization')
-    data = decode_jwt(token)
+    data = utils.decode_jwt(token)
     username = data['username']
 
     comment['author'] = username
-    comment['date'] = get_utc_timestamp_now()
+    comment['date'] = utils.get_utc_timestamp_now()
 
     try:
         validate(comment, comment_user_schema)
@@ -72,7 +72,7 @@ def create_comment_user():
 
 
 @comment_bp.route("", methods=["PATCH"])
-@admin_required
+@utils.admin_required
 def patch_comment():
     comment = json.loads(request.data)
 
@@ -86,7 +86,7 @@ def patch_comment():
 
 
 @comment_bp.route("", methods=["DELETE"])
-@admin_required
+@utils.admin_required
 def delete_comment():
     if 'id' in request.args:
         comment_id = request.args['id']
