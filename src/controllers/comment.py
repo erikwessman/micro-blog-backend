@@ -1,6 +1,7 @@
 from flask import request, Blueprint
 from db import DBManager
 from bson import ObjectId
+from validators.comment_validators import comment_schema, comment_user_schema
 from utils import admin_required, token_required, get_utc_timestamp_now, decode_jwt, JSONEncoder
 import json
 
@@ -18,8 +19,8 @@ def get_comment():
         comment = comment_db.find_one({"_id": ObjectId(comment_id)})
     elif 'article_id' in request.args:
         article_id = request.args['article_id']
-        comment = list(comment_db.find({"article_id": article_id})
-                       .sort('date', -1))
+        comment = list(comment_db.find(
+            {"article_id": article_id}).sort('date', -1))
     else:
         comment = list(comment_db.find({}))
 
