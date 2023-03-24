@@ -1,6 +1,8 @@
 import json
 from db import DBManager
 import utils
+from validators.user_validator import user_schema
+from jsonschema import validate, ValidationError
 from flask import request, Blueprint
 from bson import ObjectId
 
@@ -31,6 +33,11 @@ def get_user():
 @utils.admin_required
 def create_user():
     user = json.loads(request.data)
+
+    try:
+        validate(user, user_schema)
+    except ValidationError as error:
+        return error.message, 400
 
     user_insert = user_db.insert_one(user)
     user_id = str(user_insert.inserted_id)

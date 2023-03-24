@@ -1,5 +1,7 @@
 from flask import request, Blueprint, jsonify
 import utils
+from validators.user_validator import user_schema, user_login_schema
+from jsonschema import validate, ValidationError
 from db import DBManager
 import bcrypt
 import json
@@ -13,49 +15,53 @@ user_db = DBManager.get_db()['users']
 def login():
     login = json.loads(request.data)
 
-    if 'username' in login and 'password' in login:
-        username = login['username']
-        password = login['password']
+    try:
+        validate(login, user_login_schema)
+    except ValidationError as error:
+        return error.message, 400
 
-        user = user_db.find_one({"username": username})
+    username = login['username']
+    password = login['password']
 
-        if user:
-            if bcrypt.checkpw(password.encode('utf-8'), user['password']):
-                token = utils.generate_jwt({'username': username})
-                return jsonify({'token': token}), 200
-            else:
-                return "Password does not match", 400
+    user = user_db.find_one({"username": username})
+
+    if user:
+        if bcrypt.checkpw(password.encode('utf-8'), user['password']):
+            token = utils.generate_jwt({'username': username})
+            return jsonify({'token': token}), 200
         else:
-            return "User does not exist", 400
+            return "Password does not match", 400
     else:
-        return "Username or password not specified in request", 400
+        return "User does not exist", 400
 
 
 @authorization_bp.route("/register", methods=["POST"])
 def register():
     register = json.loads(request.data)
 
-    if 'username' in register and 'email' in register:
-        username = register['username']
-        email = register['email']
-        password = register['password']
+    try:
+        validate(register, user_schema)
+    except ValidationError as error:
+        return error.message, 400
 
-        if user_db.count_documents({'username': username}, limit=1) != 0:
-            return "Username already in use", 400
+    username = register['username']
+    email = register['email']
+    password = register['password']
 
-        if user_db.count_documents({'email': email}, limit=1) != 0:
-            return "Email already in use", 400
+    if user_db.count_documents({'username': username}, limit=1) != 0:
+        return "Username already in use", 400
 
-        # Update the request with hashed password
-        register['password'] = bcrypt.hashpw(
-            password.encode('utf-8'), bcrypt.gensalt())
+    if user_db.count_documents({'email': email}, limit=1) != 0:
+        return "Email already in use", 400
 
-        user_db.insert_one(register)
+    # Update the request with hashed password
+    register['password'] = bcrypt.hashpw(
+        password.encode('utf-8'), bcrypt.gensalt())
 
-        token = utils.generate_jwt({'username': username})
-        return jsonify({'token': token}), 200
-    else:
-        return "Username or email not specified in request", 400
+    user_db.insert_one(register)
+
+    token = utils.generate_jwt({'username': username})
+    return jsonify({'token': token}), 200
 
 
 @authorization_bp.route("/valid", methods=["GET"])
