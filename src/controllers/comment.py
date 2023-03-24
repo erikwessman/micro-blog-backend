@@ -2,6 +2,7 @@ from flask import request, Blueprint
 from db import DBManager
 from bson import ObjectId
 from validators.comment_validators import comment_schema, comment_user_schema
+from jsonschema import validate, ValidationError
 from utils import admin_required, token_required, get_utc_timestamp_now, decode_jwt, JSONEncoder
 import json
 
@@ -35,6 +36,11 @@ def get_comment():
 @admin_required
 def create_comment():
     comment = json.loads(request.data)
+    
+    try:
+        validate(comment, comment_schema)
+    except ValidationError as error:
+        return error.message, 400
 
     comment_insert = comment_db.insert_one(comment)
     comment_id = str(comment_insert.inserted_id)
@@ -53,6 +59,11 @@ def create_comment_user():
 
     comment['author'] = username
     comment['date'] = get_utc_timestamp_now()
+
+    try:
+        validate(comment, comment_user_schema)
+    except ValidationError as error:
+        return error.message, 400
 
     comment_insert = comment_db.insert_one(comment)
     comment_id = str(comment_insert.inserted_id)
