@@ -20,8 +20,13 @@ def get_comment():
         comment = comment_db.find_one({"_id": ObjectId(comment_id)})
     elif 'article_id' in request.args:
         article_id = request.args['article_id']
-        comment = list(comment_db.find(
-            {"article_id": article_id}).sort('date', -1))
+        pagination_dict = utils.build_pagination(request.args.to_dict())
+
+        comment = list(comment_db.find({"article_id": article_id})
+                       .sort('date', -1)
+                       .skip(pagination_dict['skip'])
+                       .limit(pagination_dict['limit']))
+
     else:
         comment = list(comment_db.find({}))
 
@@ -36,7 +41,7 @@ def get_comment():
 @utils.admin_required
 def create_comment():
     comment = json.loads(request.data)
-    
+
     try:
         validate(comment, comment_schema)
     except ValidationError as error:

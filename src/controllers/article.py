@@ -17,14 +17,14 @@ def get_article():
         article_id = request.args['id']
         article = article_db.find_one({"_id": ObjectId(article_id)})
     else:
-        article_filter = utils.build_article_filter(request.args.to_dict())
-        article_pagination = utils.build_article_pagination(
+        filter_dict = utils.build_article_filter(request.args.to_dict())
+        pagination_dict = utils.build_pagination(
             request.args.to_dict())
 
-        article = list(article_db.find(article_filter)
+        article = list(article_db.find(filter_dict)
                        .sort('date', -1)
-                       .skip(article_pagination['skip'])
-                       .limit(article_pagination['limit']))
+                       .skip(pagination_dict['skip'])
+                       .limit(pagination_dict['limit']))
 
     if article is not None:
         article_json = utils.JSONEncoder().encode(article)

@@ -92,7 +92,7 @@ def build_article_filter(args):
     return article_filter
 
 
-def build_article_pagination(args):
+def build_pagination(args):
     article_pagination = {
         'skip': 0,
         'limit': 1000
