@@ -1,37 +1,18 @@
 import json
 from db import DBManager
-from utils.json_encoder import JSONEncoder
-from flask import request, Blueprint, jsonify, current_app
+import utils
+from validators.user_validator import user_schema
+from jsonschema import validate, ValidationError
+from flask import request, Blueprint
 from bson import ObjectId
-import jwt
-import datetime
 
 user_bp = Blueprint('user_route', __name__,
                     url_prefix='/api/user', template_folder='templates')
 user_db = DBManager.get_db()['users']
 
 
-@user_bp.route("/login", methods=["GET"])
-def login():
-    if 'username' in request.args and 'password' in request.args:
-        username = request.args['username']
-        password = request.args['password']
-
-        user = user_db.find_one({"username": username})
-
-        if user:
-            if user['password'] == password:
-                token = generate_jwt(username)
-                return jsonify({'token': token}), 200
-            else:
-                return "Password does not match", 400
-        else:
-            return "User does not exist", 400
-    else:
-        return "Username or password not specified in request", 400
-
-
 @user_bp.route("", methods=["GET"])
+@utils.admin_required
 def get_user():
     user = None
 
@@ -41,34 +22,31 @@ def get_user():
     else:
         user = list(user_db.find(request.args))
 
-    user_json = JSONEncoder().encode(user)
-    return user_json, 200
+    if user is not None:
+        user_json = utils.JSONEncoder().encode(user)
+        return user_json, 200
+    else:
+        return "Not found", 404
 
 
 @user_bp.route("", methods=["POST"])
+@utils.admin_required
 def create_user():
-    user_json = request.data
-    user = json.loads(user_json)
+    user = json.loads(request.data)
 
-    if 'username' in user and 'email' in user:
-        username = user['username']
-        email = user['email']
+    try:
+        validate(user, user_schema)
+    except ValidationError as error:
+        return error.message, 400
 
-        if user_db.count_documents({'username': username}, limit=1) != 0:
-            return "Username already in use", 400
+    user_insert = user_db.insert_one(user)
+    user_id = str(user_insert.inserted_id)
 
-        if user_db.count_documents({'email': email}, limit=1) != 0:
-            return "Email already in use", 400
-
-        user_db.insert_one(user)
-
-        token = generate_jwt(username)
-        return jsonify({'token': token}), 200
-    else:
-        return "Username or email not specified in request", 400
+    return user_id, 200
 
 
 @user_bp.route("/dummy", methods=["POST"])
+@utils.admin_required
 def create_user_dummy():
     f = open("src/dummy_data/user.json")
     user = json.load(f)
@@ -81,9 +59,9 @@ def create_user_dummy():
 
 
 @user_bp.route("", methods=["PATCH"])
+@utils.admin_required
 def patch_user():
-    user_json = request.data
-    user = json.loads(user_json)
+    user = json.loads(request.data)
 
     if 'id' in request.args:
         user_id = request.args['id']
@@ -95,6 +73,7 @@ def patch_user():
 
 
 @user_bp.route("", methods=["DELETE"])
+@utils.admin_required
 def delete_user():
     if 'id' in request.args:
         user_id = request.args['id']
@@ -103,10 +82,3 @@ def delete_user():
         user_db.delete_many({})
 
     return "OK", 200
-
-
-def generate_jwt(username):
-    return jwt.encode({
-        'username': username,
-        'exp': datetime.datetime.utcnow() + datetime.timedelta(minutes=30)},
-        current_app.config['SECRET_KEY'])
