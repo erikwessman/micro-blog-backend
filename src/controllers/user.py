@@ -45,19 +45,6 @@ def create_user():
     return user_id, 200
 
 
-@user_bp.route("/dummy", methods=["POST"])
-@utils.admin_required
-def create_user_dummy():
-    f = open("src/dummy_data/user.json")
-    user = json.load(f)
-    f.close()
-
-    user_insert = user_db.insert_one(user)
-    user_id = str(user_insert.inserted_id)
-
-    return user_id, 200
-
-
 @user_bp.route("", methods=["PATCH"])
 @utils.admin_required
 def patch_user():

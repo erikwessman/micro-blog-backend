@@ -62,21 +62,6 @@ def create_article_user():
     return article_id, 200
 
 
-@article_bp.route("/dummy", methods=["POST"])
-@utils.admin_required
-def create_article_dummy():
-    f = open("src/dummy_data/article.json")
-    article = json.load(f)
-    f.close()
-
-    article['date'] = utils.get_utc_timestamp_now()
-
-    article_insert = article_db.insert_one(article)
-    article_id = str(article_insert.inserted_id)
-
-    return article_id, 200
-
-
 @article_bp.route("", methods=["PATCH"])
 @utils.admin_required
 def patch_article():
