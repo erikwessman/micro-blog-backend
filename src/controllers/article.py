@@ -11,6 +11,12 @@ article_bp = Blueprint('article_route', __name__,
 article_db = DBManager.get_db()['articles']
 
 
+@article_bp.before_request
+def get_latest_db():
+    global article_db
+    article_db = DBManager.get_db()['articles']
+
+
 @article_bp.route("", methods=["GET"])
 def get_article():
     article = None

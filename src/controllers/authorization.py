@@ -11,6 +11,12 @@ authorization_bp = Blueprint('authorization_route', __name__,
 user_db = DBManager.get_db()['users']
 
 
+@authorization_bp.before_request
+def get_latest_db():
+    global user_db
+    user_db = DBManager.get_db()['users']
+
+
 @authorization_bp.route("/login", methods=["POST"])
 def login():
     login = json.loads(request.data)

@@ -11,6 +11,12 @@ comment_bp = Blueprint('comment_route', __name__,
 comment_db = DBManager.get_db()['comments']
 
 
+@comment_bp.before_request
+def get_latest_db():
+    global comment_db
+    comment_db = DBManager.get_db()['comments']
+
+
 @comment_bp.route("", methods=["GET"])
 def get_comment():
     comment = None

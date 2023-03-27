@@ -12,7 +12,7 @@ class DBManager:
     def get_db():
         if DBManager.__instance == None:
             DBManager()
-        return DBManager.__instance[DBManager.db_name]
+        return DBManager.__instance[current_app.config["DB_NAME"]]
 
     def __init__(self):
         if DBManager.__instance != None:
@@ -29,3 +29,9 @@ class DBManager:
             except:
                 print('Unable to connect to database')
                 exit()
+
+    def drop_all(self):
+        if DBManager.__instance != None:
+            DBManager.__instance.drop_database(current_app.config["DB_NAME"])
+        else:
+            raise Exception("No DB instance active")

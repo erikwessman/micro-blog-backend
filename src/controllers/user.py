@@ -11,6 +11,12 @@ user_bp = Blueprint('user_route', __name__,
 user_db = DBManager.get_db()['users']
 
 
+@user_bp.before_request
+def get_latest_db():
+    global user_db
+    user_db = DBManager.get_db()['users']
+
+
 @user_bp.route("", methods=["GET"])
 @utils.admin_required
 def get_user():
