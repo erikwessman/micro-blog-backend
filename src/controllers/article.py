@@ -1,4 +1,6 @@
 from flask import request, Blueprint
+from validators.article_validators import article_schema, article_user_schema
+from jsonschema import validate, ValidationError
 import utils
 from db import DBManager
 from bson import ObjectId
@@ -38,6 +40,11 @@ def get_article():
 def create_article():
     article = json.loads(request.data)
 
+    try:
+        validate(article, article_schema)
+    except ValidationError as error:
+        return error.message, 400
+
     article_insert = article_db.insert_one(article)
     article_id = str(article_insert.inserted_id)
 
@@ -48,6 +55,11 @@ def create_article():
 @utils.token_required
 def create_article_user():
     article = json.loads(request.data)
+
+    try:
+        validate(article, article_user_schema)
+    except ValidationError as error:
+        return error.message, 400
 
     token = request.headers.get('Authorization')
     data = utils.decode_jwt(token)

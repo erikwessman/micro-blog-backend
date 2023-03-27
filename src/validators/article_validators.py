@@ -23,10 +23,13 @@ article_schema = {
         },
         "categories": {
             "type": "array",
+            "maxItems": 5,
+            "uniqueItems": True,
             "items": {
-                "type": "string"
-            },
-            "maxLength": 5
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 100
+            }
         },
         "image": {
             "type": "object",
@@ -43,15 +46,23 @@ article_schema = {
                     "type": "string"
                 }
             },
-            "required": ["src"]
+            "required": [
+                "src"
+            ]
         },
         "content": {
             "type": "string",
             "minLength": 1,
             "maxLength": 5000
-        },
-        "required": ["title", "author", "date", "categories", "content"]
-    }
+        }
+    },
+    "required": [
+        "title",
+        "author",
+        "date",
+        "categories",
+        "content"
+    ]
 }
 
 article_user_schema = {
@@ -71,10 +82,13 @@ article_user_schema = {
         },
         "categories": {
             "type": "array",
+            "maxItems": 5,
+            "uniqueItems": True,
             "items": {
-                "type": "string"
-            },
-            "maxLength": 5
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 100
+            }
         },
         "image": {
             "type": "object",
@@ -91,13 +105,19 @@ article_user_schema = {
                     "type": "string"
                 }
             },
-            "required": ["src"]
+            "required": [
+                "src"
+            ]
         },
         "content": {
             "type": "string",
             "minLength": 1,
             "maxLength": 5000
-        },
-        "required": ["title", "categories", "content"]
-    }
+        }
+    },
+    "required": [
+        "title",
+        "categories",
+        "content"
+    ]
 }
