@@ -1,14 +1,22 @@
 article_schema = {
+    "title": "Article",
+    "description": "Record of a article",
     "type": "object",
     "properties": {
         "title": {
-            "type": "string"
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 200
         },
         "author": {
-            "type": "string"
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 50
         },
         "description": {
-            "type": "string"
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 500
         },
         "date": {
             "type": "number"
@@ -17,13 +25,16 @@ article_schema = {
             "type": "array",
             "items": {
                 "type": "string"
-            }
+            },
+            "maxLength": 5
         },
         "image": {
             "type": "object",
             "properties": {
                 "src": {
-                    "type": "string"
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 500
                 },
                 "alt": {
                     "type": "string"
@@ -35,32 +46,43 @@ article_schema = {
             "required": ["src"]
         },
         "content": {
-            "type": "string"
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 5000
         },
         "required": ["title", "author", "date", "categories", "content"]
     }
 }
 
 article_user_schema = {
+    "title": "User article",
+    "description": "Record of an article created by a user",
     "type": "object",
     "properties": {
         "title": {
-            "type": "string"
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 200
         },
         "description": {
-            "type": "string"
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 500
         },
         "categories": {
             "type": "array",
             "items": {
                 "type": "string"
-            }
+            },
+            "maxLength": 5
         },
         "image": {
             "type": "object",
             "properties": {
                 "src": {
-                    "type": "string"
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 500
                 },
                 "alt": {
                     "type": "string"
@@ -72,7 +94,9 @@ article_user_schema = {
             "required": ["src"]
         },
         "content": {
-            "type": "string"
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 5000
         },
         "required": ["title", "categories", "content"]
     }
