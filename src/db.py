@@ -30,7 +30,7 @@ class DBManager:
                 print('Unable to connect to database')
                 exit()
 
-    def drop_all(self):
+    def drop_all():
         if DBManager.__instance != None:
             DBManager.__instance.drop_database(current_app.config["DB_NAME"])
         else:

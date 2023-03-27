@@ -1,6 +1,5 @@
 import pytest
 from src import init_app
-from src.db import DBManager
 
 
 @pytest.fixture
@@ -13,7 +12,9 @@ def client():
 
     yield app.test_client()
 
-    DBManager.drop_all()
+    with app.app_context():
+        from src.db import DBManager
+        DBManager.drop_all()
 
 
 def test_app(client):
