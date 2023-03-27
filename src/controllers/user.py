@@ -1,10 +1,10 @@
-import json
-from db import DBManager
-import utils
-from validators.user_validator import user_schema
-from jsonschema import validate, ValidationError
 from flask import request, Blueprint
+from jsonschema import validate, ValidationError
+from src.db import DBManager
 from bson import ObjectId
+from src.validators.user_validator import user_schema
+import json
+import src.utils as utils
 
 user_bp = Blueprint('user_route', __name__,
                     url_prefix='/api/user', template_folder='templates')

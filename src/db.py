@@ -1,14 +1,12 @@
 from pymongo import MongoClient
-from dotenv import load_dotenv
-from os import getenv
+from flask import current_app
 
-load_dotenv()
 
 class DBManager:
     __instance = None
-    db_host = getenv("DB_HOST")
-    db_port = int(getenv("DB_PORT"))
-    db_name = getenv("DB_NAME")
+    db_host = current_app.config["DB_HOST"]
+    db_port = int(current_app.config["DB_PORT"])
+    db_name = current_app.config["DB_NAME"]
 
     @staticmethod
     def get_db():

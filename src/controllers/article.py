@@ -1,9 +1,9 @@
 from flask import request, Blueprint
-from validators.article_validators import article_schema, article_user_schema
 from jsonschema import validate, ValidationError
-import utils
-from db import DBManager
+from src.db import DBManager
 from bson import ObjectId
+from src.validators.article_validators import article_schema, article_user_schema
+import src.utils as utils
 import json
 
 article_bp = Blueprint('article_route', __name__,

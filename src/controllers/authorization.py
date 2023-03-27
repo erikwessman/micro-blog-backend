@@ -1,8 +1,8 @@
 from flask import request, Blueprint, jsonify
-import utils
-from validators.user_validator import user_schema, user_login_schema
 from jsonschema import validate, ValidationError
-from db import DBManager
+from src.db import DBManager
+from src.validators.user_validator import user_schema, user_login_schema
+import src.utils as utils
 import bcrypt
 import json
 

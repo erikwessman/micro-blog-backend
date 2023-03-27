@@ -1,9 +1,9 @@
 from flask import request, Blueprint
-from db import DBManager
-from bson import ObjectId
-from validators.comment_validators import comment_schema, comment_user_schema
 from jsonschema import validate, ValidationError
-import utils
+from src.db import DBManager
+from bson import ObjectId
+from src.validators.comment_validators import comment_schema, comment_user_schema
+import src.utils as utils
 import json
 
 comment_bp = Blueprint('comment_route', __name__,
