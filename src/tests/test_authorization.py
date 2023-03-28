@@ -2,6 +2,30 @@ import pytest
 from src import init_app
 
 
+class AuthActions(object):
+    def __init__(self, client):
+        self._client = client
+
+    def register(self, username='test', email='test@test.com', password='test'):
+        return self._client.post(
+            '/api/authorization/register',
+            content_type='application/json',
+            json={
+                'username': username,
+                'email': email,
+                'password': password
+            })
+
+    def login(self, username='test', password='test'):
+        return self._client.post(
+            '/api/authorization/login',
+            content_type='application/json',
+            json={
+                'username': username,
+                'password': password
+            })
+
+
 @pytest.fixture
 def client():
     app = init_app()
@@ -17,127 +41,57 @@ def client():
         DBManager.drop_all()
 
 
-def test_register(client):
+@pytest.fixture
+def auth(client):
+    return AuthActions(client)
+
+
+def test_register(client, auth):
     """
     Register a user
-    Assert that the request is successful with status code 200
     """
-    response = client.post("/api/authorization/register", content_type="application/json",
-                           json={
-                               'username': 'user',
-                               'email': 'user@gmail.com',
-                               'password': 'password'
-                           })
+    response = auth.register()
     assert response.status_code == 200
 
 
-def test_register_validate(client):
+def test_register_validate(client, auth):
     """
     Attempt to register a user without submitting an email
-    Request will fail because email is a required field
-    Assert that the request fails with status code 400
     """
-    response = client.post("/api/authorization/register", content_type="application/json",
-                           json={
-                               'username': 'user',
-                               'password': 'password'
-                           })
+    response = auth.register(email=None)
     assert response.status_code == 400
 
 
-def test_register_existing_username(client):
+def test_register_existing_username(client, auth):
     """
-    Register a user and attempt to create a second user with the same username as the first
-    Request will fail because usernames must be unique
-    Assert that the request fails with status code 400
+    Register a user with an existing username
     """
-    client.post("/api/authorization/register", content_type="application/json",
-                json={
-                    'username': 'user',
-                    'email': 'user@gmail.com',
-                    'password': 'password'
-                })
-
-    response = client.post("/api/authorization/register", content_type="application/json",
-                           json={
-                               'username': 'user',
-                               'email': 'another_user@gmail.com',
-                               'password': 'password'
-                           })
+    auth.register()
+    response = auth.register()
     assert response.status_code == 400
 
 
-def test_register_existing_email(client):
-    """
-    Register a user and attempt to create a second user with the same email as the first
-    Request will fail because email addresses must be unique
-    Assert that the request fails with status code 400
-    """
-    client.post("/api/authorization/register", content_type="application/json",
-                json={
-                    'username': 'user',
-                    'email': 'user@gmail.com',
-                    'password': 'password'
-                })
-
-    response = client.post("/api/authorization/register", content_type="application/json",
-                           json={
-                               'username': 'another_user',
-                               'email': 'user@gmail.com',
-                               'password': 'password'
-                           })
-    assert response.status_code == 400
-
-
-def test_login(client):
+def test_login(client, auth):
     """
     Register a user and attempt to log in
-    Assert that the request is successful with status code 200
     """
-    client.post("/api/authorization/register", content_type="application/json",
-                json={
-                    'username': 'user',
-                    'email': 'user@gmail.com',
-                    'password': 'password'
-                })
-
-    response = client.post("/api/authorization/login", content_type="application/json",
-                           json={
-                               'username': 'user',
-                               'password': 'password'
-                           })
+    auth.register()
+    response = auth.login()
     assert response.status_code == 200
 
 
-def test_login_validate(client):
+def test_login_validate(client, auth):
     """
     Attempt to log in without submitting a password in the request
-    Request will fail because logging in requires both a username and password
-    Assert that the request fails with status code 400
     """
-    response = client.post("/api/authorization/login", content_type="application/json",
-                           json={
-                               'username': 'user',
-                           })
+    response = auth.login(password=None)
     assert response.status_code == 400
 
 
-def test_login_wrong_password(client):
+def test_login_wrong_password(client, auth):
     """
-    Register a user then attempt to log in with the existing username using an incorrect password
-    Request will fail because the password will not match
-    Asser that the request fails with status code 400
+    Attempt to log in with a wrong password
     """
-    client.post("/api/authorization/register", content_type="application/json",
-                json={
-                    'username': 'user',
-                    'email': 'user@gmail.com',
-                    'password': 'password'
-                })
-
-    response = client.post("/api/authorization/login", content_type="application/json",
-                           json={
-                               'username': 'user',
-                               'password': 'password1'
-                           })
+    auth.register()
+    response = auth.register(password='123')
     assert response.status_code == 400
