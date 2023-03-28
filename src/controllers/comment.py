@@ -1,14 +1,20 @@
 from flask import request, Blueprint
-from db import DBManager
-from bson import ObjectId
-from validators.comment_validators import comment_schema, comment_user_schema
 from jsonschema import validate, ValidationError
-import utils
+from src.db import DBManager
+from bson import ObjectId
+from src.validators.comment_validators import comment_schema, comment_user_schema
+import src.utils as utils
 import json
 
 comment_bp = Blueprint('comment_route', __name__,
                        url_prefix='/api/comment', template_folder='templates')
 comment_db = DBManager.get_db()['comments']
+
+
+@comment_bp.before_request
+def get_latest_db():
+    global comment_db
+    comment_db = DBManager.get_db()['comments']
 
 
 @comment_bp.route("", methods=["GET"])
@@ -20,8 +26,13 @@ def get_comment():
         comment = comment_db.find_one({"_id": ObjectId(comment_id)})
     elif 'article_id' in request.args:
         article_id = request.args['article_id']
-        comment = list(comment_db.find(
-            {"article_id": article_id}).sort('date', -1))
+        pagination_dict = utils.build_pagination(request.args.to_dict())
+
+        comment = list(comment_db.find({"article_id": article_id})
+                       .sort('date', -1)
+                       .skip(pagination_dict['skip'])
+                       .limit(pagination_dict['limit']))
+
     else:
         comment = list(comment_db.find({}))
 
@@ -36,7 +47,7 @@ def get_comment():
 @utils.admin_required
 def create_comment():
     comment = json.loads(request.data)
-    
+
     try:
         validate(comment, comment_schema)
     except ValidationError as error:
@@ -55,9 +66,8 @@ def create_comment_user():
 
     token = request.headers.get('Authorization')
     data = utils.decode_jwt(token)
-    username = data['username']
 
-    comment['author'] = username
+    comment['author'] = data['username']
     comment['date'] = utils.get_utc_timestamp_now()
 
     try:

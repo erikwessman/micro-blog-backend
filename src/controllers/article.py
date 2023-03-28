@@ -1,12 +1,20 @@
 from flask import request, Blueprint
-import utils
-from db import DBManager
+from jsonschema import validate, ValidationError
+from src.db import DBManager
 from bson import ObjectId
+from src.validators.article_validators import article_schema, article_user_schema
+import src.utils as utils
 import json
 
 article_bp = Blueprint('article_route', __name__,
                        url_prefix='/api/article', template_folder='templates')
 article_db = DBManager.get_db()['articles']
+
+
+@article_bp.before_request
+def get_latest_db():
+    global article_db
+    article_db = DBManager.get_db()['articles']
 
 
 @article_bp.route("", methods=["GET"])
@@ -17,14 +25,14 @@ def get_article():
         article_id = request.args['id']
         article = article_db.find_one({"_id": ObjectId(article_id)})
     else:
-        article_filter = utils.build_article_filter(request.args.to_dict())
-        article_pagination = utils.build_article_pagination(
+        filter_dict = utils.build_article_filter(request.args.to_dict())
+        pagination_dict = utils.build_pagination(
             request.args.to_dict())
 
-        article = list(article_db.find(article_filter)
+        article = list(article_db.find(filter_dict)
                        .sort('date', -1)
-                       .skip(article_pagination['skip'])
-                       .limit(article_pagination['limit']))
+                       .skip(pagination_dict['skip'])
+                       .limit(pagination_dict['limit']))
 
     if article is not None:
         article_json = utils.JSONEncoder().encode(article)
@@ -38,6 +46,11 @@ def get_article():
 def create_article():
     article = json.loads(request.data)
 
+    try:
+        validate(article, article_schema)
+    except ValidationError as error:
+        return error.message, 400
+
     article_insert = article_db.insert_one(article)
     article_id = str(article_insert.inserted_id)
 
@@ -49,26 +62,16 @@ def create_article():
 def create_article_user():
     article = json.loads(request.data)
 
+    try:
+        validate(article, article_user_schema)
+    except ValidationError as error:
+        return error.message, 400
+
     token = request.headers.get('Authorization')
     data = utils.decode_jwt(token)
     username = data['username']
 
     article['author'] = username
-    article['date'] = utils.get_utc_timestamp_now()
-
-    article_insert = article_db.insert_one(article)
-    article_id = str(article_insert.inserted_id)
-
-    return article_id, 200
-
-
-@article_bp.route("/dummy", methods=["POST"])
-@utils.admin_required
-def create_article_dummy():
-    f = open("src/dummy_data/article.json")
-    article = json.load(f)
-    f.close()
-
     article['date'] = utils.get_utc_timestamp_now()
 
     article_insert = article_db.insert_one(article)

@@ -1,20 +1,18 @@
 from pymongo import MongoClient
-from dotenv import load_dotenv
-from os import getenv
+from flask import current_app
 
-load_dotenv()
 
 class DBManager:
     __instance = None
-    db_host = getenv("DB_HOST")
-    db_port = int(getenv("DB_PORT"))
-    db_name = getenv("DB_NAME")
+    db_host = current_app.config["DB_HOST"]
+    db_port = int(current_app.config["DB_PORT"])
+    db_name = current_app.config["DB_NAME"]
 
     @staticmethod
     def get_db():
         if DBManager.__instance == None:
             DBManager()
-        return DBManager.__instance[DBManager.db_name]
+        return DBManager.__instance[current_app.config["DB_NAME"]]
 
     def __init__(self):
         if DBManager.__instance != None:
@@ -31,3 +29,9 @@ class DBManager:
             except:
                 print('Unable to connect to database')
                 exit()
+
+    def drop_all():
+        if DBManager.__instance != None:
+            DBManager.__instance.drop_database(current_app.config["DB_NAME"])
+        else:
+            raise Exception("No DB instance active")

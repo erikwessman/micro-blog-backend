@@ -1,14 +1,20 @@
-import json
-from db import DBManager
-import utils
-from validators.user_validator import user_schema
-from jsonschema import validate, ValidationError
 from flask import request, Blueprint
+from jsonschema import validate, ValidationError
+from src.db import DBManager
 from bson import ObjectId
+from src.validators.user_validator import user_schema
+import json
+import src.utils as utils
 
 user_bp = Blueprint('user_route', __name__,
                     url_prefix='/api/user', template_folder='templates')
 user_db = DBManager.get_db()['users']
+
+
+@user_bp.before_request
+def get_latest_db():
+    global user_db
+    user_db = DBManager.get_db()['users']
 
 
 @user_bp.route("", methods=["GET"])
@@ -38,19 +44,6 @@ def create_user():
         validate(user, user_schema)
     except ValidationError as error:
         return error.message, 400
-
-    user_insert = user_db.insert_one(user)
-    user_id = str(user_insert.inserted_id)
-
-    return user_id, 200
-
-
-@user_bp.route("/dummy", methods=["POST"])
-@utils.admin_required
-def create_user_dummy():
-    f = open("src/dummy_data/user.json")
-    user = json.load(f)
-    f.close()
 
     user_insert = user_db.insert_one(user)
     user_id = str(user_insert.inserted_id)

@@ -2,11 +2,11 @@
 
 ## How to run
 
-1. Install the necessary dependencies by running the following command in the root directory:
+1. Install dependencies:
 
-`pip install -r requirements.txt`
+    `pip install -r requirements.txt`
 
-2. Create a `.env` file that specifies the following:
+2. Create `.env` in root with:
 
 * **DB_HOST** - URL of your MongoDB instance
 * **DB_PORT** - Port of your MongoDB instance
@@ -14,13 +14,14 @@
 * **JWT_KEY** - Can be any secure key, used to sign the JSON Web Tokens
 * **ADMIN_KEY** - Can be any secure key, used to authenticate admin-only API endpoints
 
-3. Start your MongoDB instance
-4. Start the application by running the following command, in the root directory:
+3. Start a MongoDB instance
 
-`flask --app src/main.py run`
+4. Start the application:
 
-*or, if using venv*
+    `flask --app src/main.py run`
 
-`(chmod +X start.sh)`
+## How to test
 
-`./start.sh`
+1. Run the command:
+
+    `pytest src/tests/`

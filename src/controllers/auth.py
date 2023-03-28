@@ -1,17 +1,23 @@
 from flask import request, Blueprint, jsonify
-import utils
-from validators.user_validator import user_schema, user_login_schema
 from jsonschema import validate, ValidationError
-from db import DBManager
+from src.db import DBManager
+from src.validators.user_validator import user_schema, user_login_schema
+import src.utils as utils
 import bcrypt
 import json
 
-authorization_bp = Blueprint('authorization_route', __name__,
-                             url_prefix='/api/authorization', template_folder='templates')
+auth_bp = Blueprint('authorization_route', __name__,
+                    url_prefix='/api/auth', template_folder='templates')
 user_db = DBManager.get_db()['users']
 
 
-@authorization_bp.route("/login", methods=["POST"])
+@auth_bp.before_request
+def get_latest_db():
+    global user_db
+    user_db = DBManager.get_db()['users']
+
+
+@auth_bp.route("/login", methods=["POST"])
 def login():
     login = json.loads(request.data)
 
@@ -35,7 +41,7 @@ def login():
         return "User does not exist", 400
 
 
-@authorization_bp.route("/register", methods=["POST"])
+@auth_bp.route("/register", methods=["POST"])
 def register():
     register = json.loads(request.data)
 
@@ -64,13 +70,13 @@ def register():
     return jsonify({'token': token}), 200
 
 
-@authorization_bp.route("/valid", methods=["GET"])
+@auth_bp.route("/valid", methods=["GET"])
 @utils.token_required
 def valid():
     return "Token is valid", 200
 
 
-@authorization_bp.route("/refresh", methods=["POST"])
+@auth_bp.route("/refresh", methods=["POST"])
 @utils.token_required
 def refresh():
     token = request.headers.get("Authorization")
