@@ -11,13 +11,13 @@ def init_app():
     with app.app_context():
         from .controllers.app import app_bp
         from .controllers.article import article_bp
-        from .controllers.authorization import authorization_bp
+        from .controllers.auth import auth_bp
         from .controllers.user import user_bp
         from .controllers.comment import comment_bp
 
         app.register_blueprint(app_bp)
         app.register_blueprint(article_bp)
-        app.register_blueprint(authorization_bp)
+        app.register_blueprint(auth_bp)
         app.register_blueprint(user_bp)
         app.register_blueprint(comment_bp)
 
