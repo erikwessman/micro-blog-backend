@@ -25,14 +25,13 @@ def auth(client):
 
 
 def post_comment(client, token, content='Test content'):
-    response = client.post("/api/comment/user", content_type="application/json",
-                           json={
-                               'content': content,
-                               'article_id': '6413804cc4e64e5d1cd8e179'},
-                           headers={
-                               'Authorization': token
-                           })
-    return response
+    return client.post("/api/comment/user", content_type="application/json",
+                       json={
+                           'content': content,
+                           'article_id': '6413804cc4e64e5d1cd8e179'},
+                       headers={
+                           'Authorization': token
+                       })
 
 
 def register_and_get_token(auth):
@@ -66,7 +65,7 @@ def test_get_comments_by_article(client, auth):
     post_comment(client, token)
 
     response = client.get("/api/comment", content_type="application/json",
-                          data={
+                          json={
                               'article_id': '6413804cc4e64e5d1cd8e179'
                           })
 
