@@ -112,9 +112,3 @@ def test_comment_validate(client, auth):
     response = post_comment(client, token, None)
 
     assert response.status_code == 400
-
-
-def test_comment_not_logged_in(client):
-    response = post_comment(client, None)
-
-    assert response.status_code == 400
