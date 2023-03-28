@@ -66,9 +66,8 @@ def create_comment_user():
 
     token = request.headers.get('Authorization')
     data = utils.decode_jwt(token)
-    username = data['username']
 
-    comment['author'] = username
+    comment['author'] = data['username']
     comment['date'] = utils.get_utc_timestamp_now()
 
     try:

@@ -41,7 +41,7 @@ def test_register_validate(client, auth):
 
 def test_register_existing_username(client, auth):
     """
-    Register a user with an existing username
+    Attempt to register a user with an existing username
     """
     auth.register()
     response = auth.register()
@@ -50,7 +50,7 @@ def test_register_existing_username(client, auth):
 
 def test_login(client, auth):
     """
-    Register a user and attempt to log in
+    Attempt to log in
     """
     auth.register()
     response = auth.login()
