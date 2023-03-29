@@ -25,6 +25,9 @@ def auth(client):
 
 
 def post_comment(client, token, content='Test content'):
+    """
+    Helper method for posting comments
+    """
     return client.post("/api/comment/user", content_type="application/json",
                        json={
                            'content': content,
@@ -35,6 +38,9 @@ def post_comment(client, token, content='Test content'):
 
 
 def register_and_get_token(auth):
+    """
+    Helper method for registering a user and returning a token for authentication
+    """
     auth_response = auth.register()
     response_dict = json.loads(auth_response.data)
     return (response_dict['token'])
@@ -74,7 +80,10 @@ def test_get_comments_by_article(client, auth):
     assert len(comments) == 2
 
 
-def test_patch_comment(client, auth):
+def test_comment_patch(client, auth):
+    """
+    Update an article and fetch it, test the change
+    """
     token = register_and_get_token(auth)
     comment_res = post_comment(client, token)
     comment_id = comment_res.data.decode('utf-8')
@@ -92,7 +101,10 @@ def test_patch_comment(client, auth):
     assert comment['content'] == 'test'
 
 
-def test_delete_comment(client, auth):
+def test_comment_delete(client, auth):
+    """
+    Delete a comment
+    """
     token = register_and_get_token(auth)
     comment_res = post_comment(client, token)
     comment_id = comment_res.data.decode('utf-8')
@@ -107,6 +119,9 @@ def test_delete_comment(client, auth):
 
 
 def test_comment_validate(client, auth):
+    """
+    Test the validation of the comment JSON schema
+    """
     token = register_and_get_token(auth)
     response = post_comment(client, token, None)
 

@@ -25,6 +25,9 @@ def auth(client):
 
 
 def post_article(client, token, title='test title'):
+    """
+    Helper method for posting articles
+    """
     return client.post("/api/article/user", content_type="application/json",
                        json={
                            'title': title,
@@ -38,12 +41,18 @@ def post_article(client, token, title='test title'):
 
 
 def register_and_get_token(auth):
+    """
+    Helper method for registering a user and returning a token for authentication
+    """
     auth_response = auth.register()
     response_dict = json.loads(auth_response.data)
     return (response_dict['token'])
 
 
 def test_article_post(client, auth):
+    """
+    Post an article and fetch it
+    """
     token = register_and_get_token(auth)
     article_res = post_article(client, token)
     article_id = article_res.data.decode('utf-8')
@@ -57,6 +66,9 @@ def test_article_post(client, auth):
 
 
 def test_article_patch(client, auth):
+    """
+    Update an article and fetch it, test the change
+    """
     token = register_and_get_token(auth)
     article_res = post_article(client, token)
     article_id = article_res.data.decode('utf-8')
@@ -75,6 +87,9 @@ def test_article_patch(client, auth):
 
 
 def test_article_delete(client, auth):
+    """
+    Delete an article
+    """
     token = register_and_get_token(auth)
     article_res = post_article(client, token)
     article_id = article_res.data.decode('utf-8')
@@ -89,6 +104,9 @@ def test_article_delete(client, auth):
 
 
 def test_article_validate(client, auth):
+    """
+    Test the validation of the article JSON schema
+    """
     token = register_and_get_token(auth)
     response = post_article(client, token, None)
 

@@ -6,7 +6,7 @@ import src.utils as utils
 import bcrypt
 import json
 
-auth_bp = Blueprint('authorization_route', __name__,
+auth_bp = Blueprint('authentication_route', __name__,
                     url_prefix='/api/auth', template_folder='templates')
 user_db = DBManager.get_db()['users']
 
