@@ -1,1 +1,1 @@
-flask --app main.py run
+flask --app wsgi.py run
