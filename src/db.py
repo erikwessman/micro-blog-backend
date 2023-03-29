@@ -1,4 +1,4 @@
-from pymongo import MongoClient
+import pymongo
 from flask import current_app
 from urllib.parse import quote_plus
 
@@ -26,13 +26,17 @@ class DBManager:
         if DBManager.__instance != None:
             raise Exception("Only one instance of this class is allowed")
         else:
+            print(
+                f'Attempting to connect to database with URL {self.mongo_uri}...')
             try:
-                print(
-                    f'Attempting to connect to database with URL {self.mongo_uri}...')
-                DBManager.__instance = MongoClient(self.mongo_uri)
-                DBManager.__instance.server_info()
+                DBManager.__instance = pymongo.MongoClient(self.mongo_uri)
+                try:
+                    DBManager.__instance.server_info()
+                except pymongo.errors.ConnectionFailure as e:
+                    print(e)
                 print('Connected to database')
-            except:
+            except Exception as e:
+                print(e)
                 print('Unable to connect to database')
                 exit()
 
