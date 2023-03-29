@@ -25,6 +25,9 @@ def auth(client):
 
 
 def create_user(client, username='test'):
+    """
+    Helper method for creating users
+    """
     return client.post("/api/user", content_type="application/json",
                        json={
                            'username': username,
@@ -34,6 +37,9 @@ def create_user(client, username='test'):
 
 
 def test_user_create(client, auth):
+    """
+    Create a user and fetch it
+    """
     user_res = create_user(client)
     user_id = user_res.data.decode('utf-8')
 
@@ -46,6 +52,9 @@ def test_user_create(client, auth):
 
 
 def test_user_patch(client, auth):
+    """
+    Create a user and update it, test the change
+    """
     user_res = create_user(client)
     user_id = user_res.data.decode('utf-8')
 
@@ -63,6 +72,9 @@ def test_user_patch(client, auth):
 
 
 def test_user_delete(client, auth):
+    """
+    Delete a user
+    """
     user_res = create_user(client)
     user_id = user_res.data.decode('utf-8')
 
@@ -75,6 +87,9 @@ def test_user_delete(client, auth):
 
 
 def test_user_validate(client, auth):
+    """
+    Test the validation of the user JSON schema
+    """
     response = create_user(client, None)
 
     assert response.status_code == 400

@@ -1,12 +1,20 @@
 from pymongo import MongoClient
 from flask import current_app
+from urllib.parse import quote_plus
 
 
 class DBManager:
     __instance = None
-    db_host = current_app.config["DB_HOST"]
-    db_port = int(current_app.config["DB_PORT"])
-    db_name = current_app.config["DB_NAME"]
+    db_host = current_app.config.get("DB_HOST") or 'localhost'
+    db_name = current_app.config.get("DB_NAME") or 'micro-blog'
+    db_user = current_app.config.get("DB_USER")
+    db_pass = current_app.config.get("DB_PASS")
+
+    if db_user:
+        mongo_uri = "mongodb+srv://%s:%s@%s/?retryWrites=true&w=majority" % (
+            quote_plus(db_user), quote_plus(db_pass), db_host)
+    else:
+        mongo_uri = "mongodb+srv://" + db_host + "/?retryWrites=true&w=majority"
 
     @staticmethod
     def get_db():
@@ -20,10 +28,8 @@ class DBManager:
         else:
             try:
                 print(
-                    f'Attempting to connect to database with URL {self.db_host} and port {self.db_port}...')
-                maxSevSelDelay = 1
-                DBManager.__instance = MongoClient(
-                    host=self.db_host, port=self.db_port, serverSelectionTimeoutMS=maxSevSelDelay)
+                    f'Attempting to connect to database with URL {self.mongo_uri}...')
+                DBManager.__instance = MongoClient(self.mongo_uri)
                 DBManager.__instance.server_info()
                 print('Connected to database')
             except:

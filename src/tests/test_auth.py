@@ -50,7 +50,7 @@ def test_register_existing_username(client, auth):
 
 def test_login(client, auth):
     """
-    Attempt to log in
+    Log in
     """
     auth.register()
     response = auth.login()

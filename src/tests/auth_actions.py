@@ -1,4 +1,8 @@
 class AuthActions(object):
+    """
+    Helper class for authentication in testing
+    """
+
     def __init__(self, client):
         self._client = client
 
