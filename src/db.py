@@ -14,7 +14,7 @@ class DBManager:
         mongo_uri = "mongodb+srv://%s:%s@%s/?retryWrites=true&w=majority" % (
             quote_plus(db_user), quote_plus(db_pass), db_host)
     else:
-        mongo_uri = "mongodb+srv://" + db_host + "/?retryWrites=true&w=majority"
+        mongo_uri = "mongodb://" + db_host + "/?retryWrites=true&w=majority"
 
     @staticmethod
     def get_db():
