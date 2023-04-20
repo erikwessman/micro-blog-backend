@@ -4,9 +4,23 @@ comment_schema = {
     "type": "object",
     "properties": {
         "author": {
-            "type": "string",
-            "minLength": 1,
-            "maxLength": 50
+            "type": "object",
+            "properties": {
+                "name": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 50
+                },
+                "id": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 24
+                }
+            },
+            "required": [
+                "name",
+                "id"
+            ]
         },
         "date": {
             "type": "number"

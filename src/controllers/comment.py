@@ -19,28 +19,27 @@ def get_latest_db():
 
 @comment_bp.route("", methods=["GET"])
 def get_comment():
-    comment = None
+    comments = []
+    token = request.headers.get('Authorization')
 
     if 'id' in request.args:
         comment_id = request.args['id']
         comment = comment_db.find_one({"_id": ObjectId(comment_id)})
+        if comment:
+            comments.append(comment)
     elif 'article_id' in request.args:
         article_id = request.args['article_id']
         pagination_dict = utils.build_pagination(request.args.to_dict())
 
-        comment = list(comment_db.find({"article_id": article_id})
-                       .sort('date', -1)
-                       .skip(pagination_dict['skip'])
-                       .limit(pagination_dict['limit']))
-
+        comments = list(comment_db.find({"article_id": article_id})
+                        .sort('date', -1)
+                        .skip(pagination_dict['skip'])
+                        .limit(pagination_dict['limit']))
     else:
-        comment = list(comment_db.find({}))
-
-    if comment is not None:
-        comment_json = utils.JSONEncoder().encode(comment)
-        return comment_json, 200
-    else:
-        return "Not found", 404
+        comments = list(comment_db.find({}))
+    
+    comments = utils.check_content_ownership(token, comments)
+    return utils.JSONEncoder().encode(comments), 200
 
 
 @comment_bp.route("", methods=["POST"])
@@ -67,7 +66,10 @@ def create_comment_user():
     token = request.headers.get('Authorization')
     data = utils.decode_jwt(token)
 
-    comment['author'] = data['username']
+    comment['author'] = {
+        'id': data['id'],
+        'name': data['username']
+    }
     comment['date'] = utils.get_utc_timestamp_now()
 
     try:

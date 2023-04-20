@@ -28,7 +28,7 @@ def token_required(f):
     def decorated(*args, **kwargs):
         if current_app.config['TESTING']:
             return f(*args, **kwargs)
-        
+
         token = request.headers.get('Authorization')
 
         if not token:
@@ -110,3 +110,18 @@ def build_pagination(args):
         article_pagination['limit'] = int(args['limit'])
 
     return article_pagination
+
+
+def check_content_ownership(token, content):
+    user_id = None
+    if token:
+        data = decode_jwt(token)
+        user_id = data['id']
+
+    for item in content:
+        if user_id and user_id == item['author']['id']:
+            item['is_owner'] = True
+        else:
+            item['is_owner'] = False
+
+    return content
