@@ -35,9 +35,7 @@ article_schema = {
             "type": "object",
             "properties": {
                 "src": {
-                    "type": "string",
-                    "minLength": 1,
-                    "maxLength": 500
+                    "type": "string"
                 },
                 "alt": {
                     "type": "string"
@@ -94,9 +92,7 @@ article_user_schema = {
             "type": "object",
             "properties": {
                 "src": {
-                    "type": "string",
-                    "minLength": 1,
-                    "maxLength": 500
+                    "type": "string"
                 },
                 "alt": {
                     "type": "string"
