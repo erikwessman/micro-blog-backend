@@ -33,7 +33,10 @@ def login():
 
     if user:
         if bcrypt.checkpw(password.encode('utf-8'), user['password']):
-            token = utils.generate_jwt({'username': username})
+            token = utils.generate_jwt({
+                'id': str(user['_id']),
+                'username': username
+            })
             return jsonify({'token': token}), 200
         else:
             return "Password does not match", 400
@@ -64,9 +67,12 @@ def register():
     register['password'] = bcrypt.hashpw(
         password.encode('utf-8'), bcrypt.gensalt())
 
-    user_db.insert_one(register)
+    user_insert = user_db.insert_one(register)
 
-    token = utils.generate_jwt({'username': username})
+    token = utils.generate_jwt({
+        'id': str(user_insert.inserted_id),
+        'username': username
+    })
     return jsonify({'token': token}), 200
 
 
